@@ -1,0 +1,194 @@
+{% load static %}
+{% load socialaccount %}
+{% csrf_token %}
+
+<!DOCTYPE html>
+<html style="font-size: 16px;">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Results:">
+    <meta name="description" content="">
+    <meta name="page_type" content="np-template-header-footer-from-plugin">
+
+    <title>Vk Stats</title>
+
+    <link rel="stylesheet" href="{% static 'main/nicepage.css'  %}" media="screen">
+    <link rel="stylesheet" href="{% static 'main/input_page.css'  %}" media="screen">
+    <script class="u-script" type="text/javascript" src="{% static 'main/jquery.js'  %}" defer=""></script>
+    <script class="u-script" type="text/javascript" src="{% static 'main/nicepage.js'  %}" defer=""></script>
+
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+
+    <link id="u-theme-google-font" rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,
+          900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
+    <link id="u-page-google-font" rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,
+          500i,600,600i,700,700i,800,800i,900,900i">
+    
+    
+    <script type="application/ld+json">{
+		"@context": "http://schema.org",
+		"@type": "Organization",
+		"name": ""
+    }</script>
+
+    <meta name="theme-color" content="#478ac9">
+    <meta property="og:title" content="input_page">
+    <meta property="og:type" content="website">
+
+
+  </head>
+
+  <body class="u-body">
+
+      <div class="container" style="text-align: right; padding-top: 2%; padding-right: 10%">
+          {% if user.is_authenticated %}
+            <a href="{% url 'account_logout' %}" class="btn btn-danger">Logout</a>
+
+          {% endif %}
+
+      </div>
+
+      <h1 class="u-custom-font u-font-montserrat u-text u-text-default u-text-1" style="margin-top: 0;">Results:</h1>
+
+
+      <div class="row">
+        <div class="column" style="width:50%; margin-left:auto">
+            <div id="container", style="height: 500px; width: 500px; float:right;">`
+              <canvas id="CHART" width="1" height="1"></canvas>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+
+            <script>
+
+            var dataFirst = {
+              label: "Car A - Speed (mph)",
+              data: {{y1|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'red'
+            };
+
+            var dataSecond = {
+              label: "Car B - Speed (mph)",
+              data: {{y2|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'blue'
+            };
+            var speedData = {
+              labels: {{x|safe}},
+              datasets: [dataFirst, dataSecond]
+            };
+
+
+            var config = {
+              type : 'line',
+              data : speedData,
+            };
+
+            window.onload = function() {
+              var my_canvas = document.getElementById("CHART").getContext('2d');
+              window.lineChart = new Chart(my_canvas, config);
+
+            };
+
+
+            </script>
+        </div>
+
+        <div class="column" style="width:50%; margin-left:auto">
+
+            <div class="u-form u-form-1" style="margin-right : 25%; margin-left: 50px;">
+
+              <form action="{% url 'result' %}" method="GET" class="u-clearfix u-form-custom-backend u-form-spacing-10 u-form-vertical
+              u-inner-form" source="custom" name="form" style="padding: 4px;" redirect="true">
+                <input type="hidden" id="siteId" name="siteId" value="185996874">
+                <input type="hidden" id="pageId" name="pageId" value="238373189">
+
+                <div class="u-form-group u-form-group-1">
+                  <label for="text-af7b" class="u-custom-font u-font-montserrat u-label u-label-1">ID:</label>
+                  <input type="text" id="text-af7b" name="id_input" class="u-border-1 u-border-grey-80 u-grey-90
+                  u-input u-input-rectangle u-radius-5" required="required">
+                </div>
+
+                <div class="u-form-date u-form-group u-form-group-2">
+                  <label for="text-d84c" class="u-custom-font u-font-montserrat u-label u-label-2">START POINT:</label>
+                  <input type="date" id="text-d84c" name="start_point_input" class="u-border-1 u-border-grey-80 u-grey-90 u-input u-input-rectangle u-radius-5" required="required">
+                </div>
+
+                <div class="u-form-checkbox u-form-group u-form-group-3">
+                  <input type="checkbox" id="checkbox-9e63" name="id_check" value="On">
+                  <label for="checkbox-9e63" class="u-custom-font u-font-montserrat u-label u-label-3">Id</label>
+                </div>
+                <div class="u-form-checkbox u-form-group u-form-group-4">
+                  <input type="checkbox" id="checkbox-17cb" name="text_check" value="On">
+                  <label for="checkbox-17cb" class="u-custom-font u-font-montserrat u-label u-label-4">Text</label>
+                </div>
+                <div class="u-form-checkbox u-form-group u-form-group-5">
+                  <input type="checkbox" id="checkbox-2173" name="likes_check" value="On">
+                  <label for="checkbox-2173" class="u-custom-font u-font-montserrat u-label u-label-5">Likes</label>
+                </div>
+                <div class="u-form-checkbox u-form-group u-form-group-6">
+                  <input type="checkbox" id="checkbox-4ae7" name="comments_check" value="On">
+                  <label for="checkbox-4ae7" class="u-custom-font u-font-montserrat u-label u-label-6">Comments</label>
+                </div>
+                <div class="u-form-checkbox u-form-group u-form-group-7">
+                  <input type="checkbox" id="checkbox-9d64" name="reposts_check" value="On">
+                  <label for="checkbox-9d64" class="u-custom-font u-font-montserrat u-label u-label-7">Reposts</label>
+                </div>
+                <div class="u-form-checkbox u-form-group u-form-group-8">
+                  <input type="checkbox" id="checkbox-b34e" name="attach_check" value="On">
+                  <label for="checkbox-b34e" class="u-custom-font u-font-montserrat u-label u-label-8">Attachments</label>
+                </div>
+
+                <div class="u-form-group u-form-select u-form-group-9">
+                  <label for="select-da4c" class="u-custom-font u-font-montserrat u-label u-label-9">Averaging window:</label>
+                  <div class="u-form-select-wrapper">
+                    <select id="select-da4c" name="averagin_list" class="u-border-1 u-border-grey-80 u-grey-90 u-input
+                    u-input-rectangle u-radius-5">
+                      <option value="Years">Years</option>
+                      <option value="Months">Months</option>
+                      <option value="Days">Days</option>
+                      <option value="Hours">Hours</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="12" version="1" class="u-caret">
+                      <path fill="currentColor" d="M4 8L0 4h8z"></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="u-align-right u-form-group u-form-submit">
+                  <a href="{% url 'app' %}" class="u-btn u-btn-round u-btn-submit u-button-style u-custom-font u-font-montserrat
+                  u-hover-palette-1-dark-1 u-palette-1-base u-radius-5 u-btn-1">SUBMIT</a>
+                  <input type="submit" value="submit" class="u-form-control-hidden">
+                </div>
+
+                <div class="u-form-send-message u-form-send-success">Спасибо! Ваше сообщение отправлено.</div>
+                <div class="u-form-send-error u-form-send-message"> Отправка не удалась. Пожалуйста, исправьте ошибки и попробуйте еще раз. </div>
+                <input type="hidden" value="" name="recaptchaResponse">
+              </form>
+
+            </div>
+
+        </div>
+
+      </div>
+
+
+
+  </body>
+</html>
