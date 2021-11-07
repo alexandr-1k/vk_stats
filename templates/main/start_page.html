@@ -33,9 +33,20 @@
         <h1 class="u-custom-font u-font-montserrat u-text u-text-default u-text-1">Vk stats 1.0</h1>
 
           {% if user.is_authenticated %}
-            <meta http-equiv = "refresh" content = "0; {% url 'app' %}" />
-          {% else %}
 
+            {% if user.username != 'admin' %}
+                <meta http-equiv = "refresh" content = "0; {% url 'app' %}" />
+            {% else %}
+
+                <script>
+                    alert('Admin has no access token!');
+                </script>
+                <meta http-equiv = "refresh" content = "0; {% url 'account_logout' %}" />
+
+            {% endif %}
+
+
+          {% else %}
 
             <a href="{% provider_login_url 'vk' %}" class="u-btn u-btn-round u-button-style
             u-hover-palette-1-dark-1 u-palette-1-base u-radius-8 u-btn-1"

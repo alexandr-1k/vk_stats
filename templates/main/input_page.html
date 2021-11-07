@@ -74,24 +74,51 @@
 
             <script>
 
-            var dataFirst = {
-              label: "Car A - Speed (mph)",
-              data: {{y1|safe}},
+            var Posts = {
+              label: "Posts",
+              data: {{posts|safe}},
               lineTension: 0,
               fill: false,
               borderColor: 'red'
             };
 
-            var dataSecond = {
-              label: "Car B - Speed (mph)",
-              data: {{y2|safe}},
+            var Likes = {
+              label: "Likes",
+              data: {{likes|safe}},
               lineTension: 0,
               fill: false,
               borderColor: 'blue'
             };
+
+            var Repost = {
+              label: "Repost",
+              data: {{reposts|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'red'
+            };
+
+            var Comments = {
+              label: "Comments",
+              data: {{comments|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'blue'
+            };
+            var Attachments = {
+              label: "Attachments",
+              data: {{attch|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'red'
+            };
+
+
+
+
             var speedData = {
-              labels: {{x|safe}},
-              datasets: [dataFirst, dataSecond]
+              labels: {{time_interval|safe}},
+              datasets: [Posts, Likes, Repost, Comments, Attachments]
             };
 
 
@@ -188,7 +215,14 @@
 
       </div>
 
+      {% if user.username == 'admin' %}
 
+          <script>
+              alert('Admin has no access token!');
+          </script>
+          <meta http-equiv = "refresh" content = "0; {% url 'account_logout' %}" />
+      {% else %}
+      {% endif %}
 
   </body>
 </html>
