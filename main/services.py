@@ -34,7 +34,9 @@ def save_to_db(dataframe: pd.DataFrame, token: str) -> None:
     """ Создаю отдельную таблицу в базе с соответвующими столбцами из pd.Dataframe"""
 
     engine, cursor = get_db_engine_and_cursor()
-    table_name = f'result_{token[:-8]}'
+    table_name = f'result_{token[-8:-1]}'
+
+    engine, cursor = get_db_engine_and_cursor()
     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     dataframe.to_sql(table_name, con=engine)
 
@@ -46,11 +48,10 @@ def extract_data_from_db(request) -> pd.DataFrame:
     engine, cursor = get_db_engine_and_cursor()
 
     token = get_access_token(request)
-    table_name = f'result_{token[:-8]}'
+    table_name = f'result_{token[-8:-1]}'
 
     extracted = pd.read_sql_query(f"SELECT * FROM {table_name}", engine)
 
-    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     return extracted
 
 
@@ -72,6 +73,10 @@ def process_data(data, params, averaging_window):
 
     requested_data = dict(itertools.islice(params.items(), 1, len(params) - 3))
     given_flags = list(filter(lambda x: requested_data[x] == '1', requested_data.keys()))
+
+    if len(given_flags) <= 2 and any(l == 'id_requested' or l == 'text_requested' for l in given_flags):
+        averaging_window = 'No_window'
+
     given_flags.append('dates')
 
     concatenated_output = {k: [] for k in given_flags}
@@ -160,90 +165,90 @@ def process_data(data, params, averaging_window):
 
 def send_requests(params: dict) -> dict:
     """ Отправляю запросы к ВК.
-    VK Api позволяет отправлять с ключем пользователя 3 запроса в секунду, при этом
-    максимумальное количество постов, которое можно получить за  секунду, равно
-    300 (т.к. один wall.get имеет ограничение count=100)
+        VK Api позволяет отправлять с ключем пользователя 3 запроса в секунду, при этом
+        максимумальное количество постов, которое можно получить за  секунду, равно
+        300 (т.к. один wall.get имеет ограничение count=100)
 
-    Хотел сначала отправлять запросы асинхронно через aiohttp, но после решил
-    использовать хранимые процедуры для приложения ВК.
+        Хотел сначала отправлять запросы асинхронно через aiohttp, но после решил
+        использовать хранимые процедуры для приложения ВК.
 
-    Из минусов: при выборе всего сразу (id поста, text, likes ...) все может упасть
-    из-за большого размера пересылаемого response (>5 Mb), если выбрать дату,
-    например с начала 2020 года.
+        Из минусов: при выборе всего сразу (id поста, text, likes ...) все может упасть
+        из-за большого размера пересылаемого response (>5 Mb), если выбрать дату,
+        например с начала 2020 года.
 
-    Код хранимой процедуры:
+        Код хранимой процедуры:
 
-    var ITERS = 25;
-    var COUNT = 100;
-    var posts = [];
-    var req_params = {
-        "access_token": Args.token,
-        "domain" : Args.domain,
-        "offset" : 0,
-        "count"  : COUNT,
-        "v" : "5.131",
-        'date_requested': Args.date_requested,
-        '_id': Args.id_requested,
-        '_text': Args.text_requested,
-        '_attch': Args.attch_requested,
-        '_likes': Args.likes_requested,
-        '_reposts': Args.reposts_requested,
-        '_comments': Args.comments_requested
+        var ITERS = 25;
+        var COUNT = 100;
+        var posts = [];
+        var req_params = {
+            "access_token": Args.token,
+            "domain" : Args.domain,
+            "offset" : 0,
+            "count"  : COUNT,
+            "v" : "5.131",
+            'date_requested': Args.date_requested,
+            '_id': Args.id_requested,
+            '_text': Args.text_requested,
+            '_attch': Args.attch_requested,
+            '_likes': Args.likes_requested,
+            '_reposts': Args.reposts_requested,
+            '_comments': Args.comments_requested
 
-    };
+        };
 
 
-    var i = 0;
-    while(i < ITERS){
+        var i = 0;
+        while(i < ITERS){
 
-        req_params.offset = i*COUNT + ITERS*COUNT*Args.offset;
-        var items = API.wall.get(req_params).items;
-        var dates = items@.date;
-        if (dates[0] < req_params['date_requested']){
-          return posts;
+            req_params.offset = i*COUNT + ITERS*COUNT*Args.offset;
+            var items = API.wall.get(req_params).items;
+            var dates = items@.date;
+            if (dates[0] < req_params['date_requested']){
+              return posts;
+            }
+            if (items.length == 0) {
+                return posts;
+            }
+
+            var ids = items@.id;
+            var owner_ids = items@.owner_id;
+            var tmp = {};
+
+            tmp.total_posts = ids.length;
+
+            if (req_params['_id'] == 1){
+              tmp.owner_id = owner_ids[0];
+              tmp.id_requested = ids;
+            }
+
+             if (req_params['_text'] == 1){
+              tmp.text_requested = items@.text;
+            }
+
+            if (req_params['_attch'] == 1){
+              tmp.attch_requested= items@.attachments;
+            }
+
+            if (req_params['_likes'] == 1){
+              tmp.likes_requested = items@.likes@.count;
+            }
+
+            if (req_params['_reposts'] == 1){
+              tmp.reposts_requested = items@.reposts@.count;
+            }
+
+            if (req_params['_comments'] == 1){
+              tmp.comments_requested = items@.comments@.count;
+            }
+
+            tmp.dates = dates;
+
+            posts.push(tmp);
+            i = i + 1;
         }
-        if (items.length == 0) {
-            return posts;
-        }
-
-        var ids = items@.id;
-        var owner_ids = items@.owner_id;
-        var tmp = {};
-
-        tmp.total_posts = ids.length;
-
-        if (req_params['_id'] == 1){
-          tmp.owner_id = owner_ids[0];
-          tmp.id_requested = ids;
-        }
-
-         if (req_params['_text'] == 1){
-          tmp.text_requested = items@.text;
-        }
-
-        if (req_params['_attch'] == 1){
-          tmp.attch_requested= items@.attachments;
-        }
-
-        if (req_params['_likes'] == 1){
-          tmp.likes_requested = items@.likes@.count;
-        }
-
-        if (req_params['_reposts'] == 1){
-          tmp.reposts_requested = items@.reposts@.count;
-        }
-
-        if (req_params['_comments'] == 1){
-          tmp.comments_requested = items@.comments@.count;
-        }
-
-        tmp.dates = dates;
-
-        posts.push(tmp);
-        i = i + 1;
-    }
-    return posts;
-    """
+        return posts;
+        """
 
     averaging_window = params.pop('averaging_window')
     necessary_fields = {'offset': 0, 'v': '5.131'}
@@ -268,6 +273,9 @@ def send_requests(params: dict) -> dict:
         params['offset'] += 1
         if data_from_request[-1]['dates'][-1] < params['date_requested']:
             break
+
+    engine, cursor = get_db_engine_and_cursor()
+    cursor.execute(f"DROP TABLE IF EXISTS result_{params['access_token'][-8:-1]}")
 
     return process_data(data, params, averaging_window)
 
