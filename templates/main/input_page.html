@@ -54,10 +54,13 @@
   <body class="u-body">
 
       <div class="container" style="text-align: right; padding-top: 2%; padding-right: 10%">
+          <a href="{% url 'get_csv' %}" class="btn btn-success">CSV</a>
+
           {% if user.is_authenticated %}
             <a href="{% url 'account_logout' %}" class="btn btn-danger">Logout</a>
 
           {% endif %}
+
 
       </div>
 
@@ -76,41 +79,41 @@
 
             var Posts = {
               label: "Posts",
-              data: {{posts|safe}},
+              data: {{posts_count|safe}},
               lineTension: 0,
               fill: false,
-              borderColor: 'red'
+              borderColor: 'orange'
             };
 
             var Likes = {
               label: "Likes",
-              data: {{likes|safe}},
+              data: {{likes_requested|safe}},
               lineTension: 0,
               fill: false,
-              borderColor: 'blue'
+              borderColor: 'red'
             };
 
             var Repost = {
               label: "Repost",
-              data: {{reposts|safe}},
-              lineTension: 0,
-              fill: false,
-              borderColor: 'red'
-            };
-
-            var Comments = {
-              label: "Comments",
-              data: {{comments|safe}},
+              data: {{reposts_requested|safe}},
               lineTension: 0,
               fill: false,
               borderColor: 'blue'
             };
-            var Attachments = {
-              label: "Attachments",
-              data: {{attch|safe}},
+
+            var Comments = {
+              label: "Comments",
+              data: {{comments_requested|safe}},
               lineTension: 0,
               fill: false,
-              borderColor: 'red'
+              borderColor: 'green'
+            };
+            var Attachments = {
+              label: "Attachments",
+              data: {{attch_count|safe}},
+              lineTension: 0,
+              fill: false,
+              borderColor: 'white'
             };
 
 
@@ -148,49 +151,50 @@
 
                 <div class="u-form-group u-form-group-1">
                   <label for="text-af7b" class="u-custom-font u-font-montserrat u-label u-label-1">ID:</label>
-                  <input type="text" id="text-af7b" name="id_input" class="u-border-1 u-border-grey-80 u-grey-90
+                  <input type="text" id="text-af7b" name="domain" class="u-border-1 u-border-grey-80 u-grey-90
                   u-input u-input-rectangle u-radius-5" required="required">
                 </div>
 
                 <div class="u-form-date u-form-group u-form-group-2">
                   <label for="text-d84c" class="u-custom-font u-font-montserrat u-label u-label-2">START POINT:</label>
-                  <input type="date" id="text-d84c" name="start_point_input" class="u-border-1 u-border-grey-80 u-grey-90 u-input u-input-rectangle u-radius-5" required="required">
+                  <input type="date" id="text-d84c" name="date_requested" class="u-border-1 u-border-grey-80 u-grey-90 u-input u-input-rectangle u-radius-5" required="required">
                 </div>
 
                 <div class="u-form-checkbox u-form-group u-form-group-3">
-                  <input type="checkbox" id="checkbox-9e63" name="id_check" value="On">
+                  <input type="checkbox" id="checkbox-9e63" name="id_requested" value="1">
                   <label for="checkbox-9e63" class="u-custom-font u-font-montserrat u-label u-label-3">Id</label>
                 </div>
                 <div class="u-form-checkbox u-form-group u-form-group-4">
-                  <input type="checkbox" id="checkbox-17cb" name="text_check" value="On">
+                  <input type="checkbox" id="checkbox-17cb" name="text_requested" value="1">
                   <label for="checkbox-17cb" class="u-custom-font u-font-montserrat u-label u-label-4">Text</label>
                 </div>
                 <div class="u-form-checkbox u-form-group u-form-group-5">
-                  <input type="checkbox" id="checkbox-2173" name="likes_check" value="On">
+                  <input type="checkbox" id="checkbox-2173" name="likes_requested" value="1">
                   <label for="checkbox-2173" class="u-custom-font u-font-montserrat u-label u-label-5">Likes</label>
                 </div>
                 <div class="u-form-checkbox u-form-group u-form-group-6">
-                  <input type="checkbox" id="checkbox-4ae7" name="comments_check" value="On">
+                  <input type="checkbox" id="checkbox-4ae7" name="comments_requested" value="1">
                   <label for="checkbox-4ae7" class="u-custom-font u-font-montserrat u-label u-label-6">Comments</label>
                 </div>
                 <div class="u-form-checkbox u-form-group u-form-group-7">
-                  <input type="checkbox" id="checkbox-9d64" name="reposts_check" value="On">
+                  <input type="checkbox" id="checkbox-9d64" name="reposts_requested" value="1">
                   <label for="checkbox-9d64" class="u-custom-font u-font-montserrat u-label u-label-7">Reposts</label>
                 </div>
                 <div class="u-form-checkbox u-form-group u-form-group-8">
-                  <input type="checkbox" id="checkbox-b34e" name="attach_check" value="On">
+                  <input type="checkbox" id="checkbox-b34e" name="attch_requested" value="1">
                   <label for="checkbox-b34e" class="u-custom-font u-font-montserrat u-label u-label-8">Attachments</label>
                 </div>
 
                 <div class="u-form-group u-form-select u-form-group-9">
                   <label for="select-da4c" class="u-custom-font u-font-montserrat u-label u-label-9">Averaging window:</label>
                   <div class="u-form-select-wrapper">
-                    <select id="select-da4c" name="averagin_list" class="u-border-1 u-border-grey-80 u-grey-90 u-input
+                    <select id="select-da4c" name="averaging_window" class="u-border-1 u-border-grey-80 u-grey-90 u-input
                     u-input-rectangle u-radius-5">
-                      <option value="Years">Years</option>
-                      <option value="Months">Months</option>
-                      <option value="Days">Days</option>
                       <option value="Hours">Hours</option>
+                      <option value="Days">Days</option>
+                      <option value="Months">Months</option>
+                      <option value="Years">Years</option>
+                      <option value="No_window">No window</option>
                     </select>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="12" version="1" class="u-caret">
                       <path fill="currentColor" d="M4 8L0 4h8z"></path>
@@ -223,6 +227,14 @@
           <meta http-equiv = "refresh" content = "0; {% url 'account_logout' %}" />
       {% else %}
       {% endif %}
+
+
+      {% if error != '0' %}
+          <script>
+              alert('Error: {{error}}');
+          </script>
+      {% endif %}
+
 
   </body>
 </html>

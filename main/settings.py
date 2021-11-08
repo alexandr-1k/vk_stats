@@ -9,6 +9,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 AUTHENTICATION_BACKENDS = (
+
+    'django.contrib.auth.backends.ModelBackend',
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
@@ -31,6 +33,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.vk",
+
+    'main'
 
 ]
 
